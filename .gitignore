@@ -1,0 +1,17 @@
+node_modules
+dist
+.turbo
+.expo
+*.tsbuildinfo
+
+# Expo / React Native
+.expo-shared
+android/
+ios/
+
+# Vite
+apps/web/dist
+
+# Misc
+.DS_Store
+*.local
