@@ -11,11 +11,11 @@
   "dependencies": {
     "@sudoku/core": "workspace:*",
     "expo": "~56.0.0",
-    "react": "19.2.3",
+    "react": "19.2.6",
     "react-native": "0.85.3"
   },
   "devDependencies": {
-    "@types/react": "^19.0.0",
+    "@types/react": "^19.2.15",
     "typescript": "~5.8.0"
   }
 }
