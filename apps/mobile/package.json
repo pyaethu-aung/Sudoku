@@ -2,7 +2,7 @@
   "name": "@sudoku/mobile",
   "private": true,
   "version": "0.0.0",
-  "main": "expo-router/entry",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "dev": "expo start",
     "build": "echo \"Mobile build handled by EAS — skipping\"",
