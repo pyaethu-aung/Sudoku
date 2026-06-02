@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## What this is
+
+An MVP Sudoku solver. Web first (React + TypeScript), React Native mobile planned soon. No backend.
+
 ## Monorepo layout
 
 Turborepo + pnpm workspaces. Two apps consume two shared packages:
@@ -9,13 +13,47 @@ Turborepo + pnpm workspaces. Two apps consume two shared packages:
 ```
 apps/
   web/      React 19 + Vite 6 + Tailwind CSS
-  mobile/   Expo SDK 56 (React Native 0.85)
+  mobile/   Expo SDK 56 (React Native 0.85) — scaffold only, no features yet
 packages/
   core/     @sudoku/core — pure TS business logic (solve, validate, generate)
   ui/       @sudoku/ui   — shared React component library (peer dep on React)
 ```
 
 Both apps declare `@sudoku/core` as a workspace dependency. `@sudoku/ui` is available but not yet consumed. Package entry points export directly from `src/index.ts` (no build step for packages — bundler resolves TS source).
+
+## Architecture rules
+
+- **All sudoku logic lives in `packages/core`.** Never inline solver, validator, or board logic inside React components. Web and mobile both import from `core`.
+- `packages/core` has zero runtime dependencies and no UI/platform code. Pure TypeScript only.
+- Platform-specific UI is fine. Domain logic is not — it stays shared.
+- TypeScript strict mode is on everywhere.
+
+## core API surface
+
+- `solve(board)` → solution `number[][]` or `null`
+- `isValid(board, row, col, num)` → boolean
+- `findEmpty(board)` → `[row, col]` or `null`
+- `countSolutions(board)` → 0, 1, or 2 (stops at 2)
+- Board type: `number[][]`, where `0` = empty cell
+
+## Algorithm
+
+Backtracking is sufficient for MVP (~50 lines, solves in <5ms). Do not reach for constraint propagation or Dancing Links until generation/difficulty features justify it.
+
+## MVP scope
+
+In scope:
+- Manual puzzle input
+- Solve, validate, clear
+- Highlight selected cell + row/column/box
+- Report: no solution / multiple solutions / solved
+- Live conflict highlighting
+
+Out of scope for MVP:
+- Puzzle generation
+- Difficulty rating
+- Timers, hints, animations
+- Clue-count enforcement (let the solver surface outcomes instead)
 
 ## Commands
 
@@ -64,4 +102,4 @@ Two `PreToolUse` hooks in `.claude/settings.json` enforce that `git commit` and 
 
 ## Current state
 
-All core logic (`solve`, `validate`, `generate` in `packages/core/src/index.ts`) is stubbed — they throw `Error('Not implemented')`. Both apps render a placeholder heading. The mobile build step is a no-op (`echo` command); actual mobile builds go through EAS.
+Core logic (`solve`, `validate`, `generate` in `packages/core/src/index.ts`) is stubbed — they throw `Error('Not implemented')`. Both apps render a placeholder heading. The mobile build step is a no-op (`echo` command); actual mobile builds go through EAS.
