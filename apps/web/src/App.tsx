@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { countSolutions, solve, type Grid } from '@sudoku/core';
+import { Button } from '@sudoku/ui';
 import { emptyBoard, getConflicts } from './sudoku';
 import Board from './components/Board';
 
@@ -116,20 +117,12 @@ export default function App() {
       />
 
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={handleSolve}
-          className="rounded-lg bg-primary px-5 py-2 font-medium text-primary-fg transition-colors duration-150 ease-out hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-page"
-        >
+        <Button variant="primary" onClick={handleSolve}>
           Solve
-        </button>
-        <button
-          type="button"
-          onClick={handleClear}
-          className="rounded-lg border border-line px-5 py-2 font-medium text-ink transition-colors duration-150 ease-out hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-page"
-        >
+        </Button>
+        <Button variant="secondary" onClick={handleClear}>
           Clear
-        </button>
+        </Button>
       </div>
 
       <p
