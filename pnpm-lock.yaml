@@ -60,6 +60,9 @@ importers:
       '@sudoku/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@sudoku/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       react:
         specifier: ^18.3.0
         version: 18.3.1
