@@ -25,6 +25,11 @@ export default function App() {
   const [solution, setSolution] = useState<Grid | null>(null);
   const [status, setStatus] = useState<Status | null>(null);
   const [whyOpen, setWhyOpen] = useState(false);
+  // The board as it was before the last Clear, kept so Clear can be undone.
+  const [cleared, setCleared] = useState<Grid | null>(null);
+  // Polite, screen-reader-only narration of grid edits (which never reach the
+  // visual status line). Updated on every cell change, paste, and undo.
+  const [announce, setAnnounce] = useState('');
 
   const conflicts = useMemo(() => getConflicts(board), [board]);
   const display = solution ?? board;
@@ -44,6 +49,10 @@ export default function App() {
       setSolution(null);
       setStatus(null);
       setWhyOpen(false);
+      setCleared(null);
+      setAnnounce(
+        `Row ${row + 1}, column ${col + 1} ${value === 0 ? 'cleared' : `set to ${value}`}`,
+      );
     },
     [selected],
   );
@@ -81,13 +90,25 @@ export default function App() {
   }, [board, conflicts]);
 
   const handleClear = useCallback(() => {
+    const hadClues = countClues(board) > 0;
+    setCleared(hadClues ? board : null);
     setBoard(emptyBoard());
     setSolution(null);
-    setStatus(null);
+    setStatus(hadClues ? { kind: 'info', text: 'Board cleared' } : null);
     // Keep a cell selected so the keypad stays usable after clearing.
     setSelected([0, 0]);
     setWhyOpen(false);
-  }, []);
+    setAnnounce(hadClues ? 'Board cleared' : '');
+  }, [board]);
+
+  const handleUndo = useCallback(() => {
+    if (!cleared) return;
+    setBoard(cleared);
+    setCleared(null);
+    setSolution(null);
+    setStatus(null);
+    setAnnounce('Clear undone');
+  }, [cleared]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-page px-4 py-10 text-ink">
@@ -140,6 +161,15 @@ export default function App() {
               <Chevron open={whyOpen} />
             </button>
           )}
+          {cleared && (
+            <button
+              type="button"
+              onClick={handleUndo}
+              className="rounded-sm text-primary underline decoration-1 underline-offset-2 outline-none transition-opacity duration-150 ease-out hover:opacity-80 focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              Undo
+            </button>
+          )}
         </p>
 
         {status?.kind === 'warning' && whyOpen && (
@@ -162,6 +192,10 @@ export default function App() {
             </p>
           </div>
         )}
+      </div>
+
+      <div aria-live="polite" className="sr-only">
+        {announce}
       </div>
     </main>
   );
