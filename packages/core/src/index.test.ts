@@ -34,6 +34,12 @@ const unsolvable: Grid = [
   ...Array.from({ length: 7 }, () => Array(9).fill(0)),
 ];
 
+// Two 5s in the same row: the givens themselves break the rules.
+const conflictingGivens: Grid = [
+  [5, 5, 0, 0, 0, 0, 0, 0, 0],
+  ...Array.from({ length: 8 }, () => Array(9).fill(0)),
+];
+
 /** A grid is a valid solution when it is full and every unit holds 1–9 exactly. */
 function isCompleteValidSolution(grid: Grid): boolean {
   const full = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
@@ -65,6 +71,10 @@ describe('solve', () => {
     expect(solve(unsolvable)).toBeNull();
   });
 
+  it('returns null when the given clues already conflict', () => {
+    expect(solve(conflictingGivens)).toBeNull();
+  });
+
   it('does not mutate the input board', () => {
     const copy = solvable.map((r) => [...r]);
     solve(solvable);
@@ -85,6 +95,10 @@ describe('countSolutions', () => {
 
   it('returns 0 for an unsolvable puzzle', () => {
     expect(countSolutions(unsolvable)).toBe(0);
+  });
+
+  it('returns 0 when the given clues already conflict', () => {
+    expect(countSolutions(conflictingGivens)).toBe(0);
   });
 
   it('returns 2 (capped) for the empty board', () => {

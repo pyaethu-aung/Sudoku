@@ -32,10 +32,28 @@ export function findEmpty(board: Grid): [number, number] | null {
 }
 
 /**
+ * Whether every filled cell in the board is consistent with the rules. The
+ * backtracker only validates the cells it fills, so a board whose givens
+ * already conflict must be rejected up front or it would "complete" into an
+ * invalid grid.
+ */
+function hasValidGivens(board: Grid): boolean {
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 9; col++) {
+      const value = board[row][col];
+      if (value !== 0 && !isValid(board, row, col, value)) return false;
+    }
+  }
+  return true;
+}
+
+/**
  * Solve via backtracking. Returns a completed grid, or null if no solution
- * exists. The input board is never mutated.
+ * exists (including when the given clues already conflict). The input board is
+ * never mutated.
  */
 export function solve(board: Grid): Grid | null {
+  if (!hasValidGivens(board)) return null;
   const working = board.map((r) => [...r]);
   return backtrack(working) ? working : null;
 }
@@ -57,10 +75,12 @@ function backtrack(board: Grid): boolean {
 }
 
 /**
- * Count solutions, stopping early at 2. Returns 0 (unsolvable), 1 (unique), or
- * 2 (multiple). The input board is never mutated.
+ * Count solutions, stopping early at 2. Returns 0 (unsolvable, including
+ * conflicting givens), 1 (unique), or 2 (multiple). The input board is never
+ * mutated.
  */
 export function countSolutions(board: Grid): number {
+  if (!hasValidGivens(board)) return 0;
   const working = board.map((r) => [...r]);
   return count(working, 0);
 }
