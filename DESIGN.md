@@ -230,7 +230,8 @@ border, and weight. No element pairs a 1px border with a wide soft shadow.
   rows 2 and 5 (the 3×3 boundaries).
 - **Focus:** a 2px inset Layout Blue ring; the cell raises in the stack so the ring
   is not clipped by neighbors. The grid is a roving-tabindex composite, so only the
-  selected cell is in the tab order and focus always sits on it (see §7).
+  selected cell is in the tab order and focus always sits on it (see Interaction &
+  Behavior below).
 
 ### Board Frame
 - **Corner Style:** 12px (`rounded.md`), clipped so the cell grid sits flush.
@@ -259,13 +260,13 @@ border, and weight. No element pairs a 1px border with a wide soft shadow.
   **Why 17?** disclosure on the clue-floor warning, or **Undo** after a Clear or
   paste. Inline actions use Layout Blue, underlined, never a second button shape.
 
-## 6. Interaction Patterns
+### Interaction & Behavior
 
-These are platform-agnostic decisions: the web app implements them, and the
-planned React Native track should reuse the same model even though the controls
-differ.
+Platform-agnostic interaction decisions, documented under Components because they
+describe how the grid and its controls behave. The planned React Native track
+should reuse this model even though the platform controls differ.
 
-### Selection & Navigation
+#### Selection & Navigation
 - There is always exactly one selected cell; it starts at the top-left on load.
   Tapping or clicking a cell selects it.
 - The grid is a **roving-tabindex** composite: a single tab stop, the selected
@@ -274,7 +275,7 @@ differ.
 - Grid keystrokes are handled on the grid, not the window, so focus alone decides
   what a key does and typing never leaks into other controls.
 
-### Digit Entry
+#### Digit Entry
 - **Desktop:** 1–9 type into the selected cell; Backspace, Delete, or 0 clear it.
 - **Touch:** the on-screen keypad does the same, since there is no hardware keyboard.
 - **Enter** solves while the grid has focus (advertised on the Solve button via
@@ -282,7 +283,7 @@ differ.
 - **Paste** an 81-character string (digits, with 0 or `.` for blanks) to load a
   puzzle; any other paste is ignored so normal copy/paste still works.
 
-### Verdicts & Guarding
+#### Verdicts & Guarding
 - Editing any cell returns to edit mode and clears the prior verdict.
 - Solve is refused while any cell conflicts ("Fix the highlighted conflicts to
   solve"); the board stays editable so the red cells remain visible. The core
@@ -293,18 +294,18 @@ differ.
 - Outcomes are stated plainly: "Solved", "No solution exists", or "Multiple
   solutions exist; showing one" (one valid completion is filled, never a refusal).
 
-### Recovery
+#### Recovery
 - Clear and paste stash the previous board; a single inline **Undo** in the status
   line restores it. No modals, no confirmation dialogs.
 
-### Announcements & Motion
+#### Announcements & Motion
 - A visually hidden `aria-live="polite"` region narrates every grid edit, clear,
   paste, and undo, so assistive tech keeps pace with the otherwise-silent grid;
   the status line announces verdicts.
 - Motion is limited to a 180ms ease-out fade on the Why-17 disclosure; every other
   state change is instant. All motion respects `prefers-reduced-motion`.
 
-### Named Rules
+#### Named Rules
 **The Single-Selection Rule.** Exactly one cell is selected and DOM focus is always
 on it. Navigation moves both together; they never diverge.
 
@@ -315,7 +316,7 @@ paste) is undoable inline. Destructive board changes never use a confirmation di
 grid, not the window, so focus determines a key's meaning. Paste is the one global
 listener, because it has no single focus target.
 
-## 7. Do's and Don'ts
+## 6. Do's and Don'ts
 
 ### Do:
 - **Do** carry every color meaning with a second cue: weight for authorship,
