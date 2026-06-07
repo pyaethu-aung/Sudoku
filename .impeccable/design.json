@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-06-04T00:00:00Z",
+  "generatedAt": "2026-06-07T19:13:23Z",
   "title": "Design System: Sudoku Solver",
   "extensions": {
     "colorMeta": {
@@ -52,6 +52,22 @@
           "oklch(0.95 0.03 25)"
         ]
       },
+      "warning": {
+        "role": "warning",
+        "displayName": "Warning Amber",
+        "canonical": "oklch(0.52 0.13 72)",
+        "dark": "oklch(0.80 0.13 75)",
+        "tonalRamp": [
+          "oklch(0.15 0.05 72)",
+          "oklch(0.27 0.08 72)",
+          "oklch(0.40 0.11 72)",
+          "oklch(0.52 0.13 72)",
+          "oklch(0.66 0.13 73)",
+          "oklch(0.80 0.13 75)",
+          "oklch(0.89 0.09 78)",
+          "oklch(0.96 0.04 82)"
+        ]
+      },
       "ink": {
         "role": "neutral",
         "displayName": "Ink",
@@ -89,9 +105,9 @@
       "title": { "displayName": "Title", "purpose": "The single page heading." },
       "numeral": {
         "displayName": "Numeral",
-        "purpose": "Grid digit; weight encodes authorship (700 user, 400 solver), tabular figures."
+        "purpose": "Grid digit and keypad key; weight encodes authorship (700 user, 400 solver), tabular figures."
       },
-      "body": { "displayName": "Body", "purpose": "Subtitle and status line." },
+      "body": { "displayName": "Body", "purpose": "Subtitle, status line, and the Why-17 explanation." },
       "label": { "displayName": "Label", "purpose": "Button text." }
     },
     "shadows": [
@@ -105,12 +121,17 @@
       {
         "name": "state-transition",
         "value": "150ms cubic-bezier(0, 0, 0.2, 1)",
-        "purpose": "Color-only transitions for selection, conflict, and solved states. Ease-out, 150ms."
+        "purpose": "Color-only transitions for selection, conflict, solved, hover, and keypad-press states. Ease-out, 150ms."
+      },
+      {
+        "name": "why-reveal",
+        "value": "180ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Fade-and-rise entrance for the Why-17 disclosure panel. The only non-instant reveal in the system."
       },
       {
         "name": "reduced-motion",
         "value": "0.01ms",
-        "purpose": "Under prefers-reduced-motion: reduce, all transitions collapse to instant."
+        "purpose": "Under prefers-reduced-motion: reduce, all transitions and animations collapse to instant."
       }
     ]
   },
@@ -119,15 +140,15 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The Solve action. The one filled, brand-colored button on the page.",
-      "html": "<button class=\"ds-btn-primary\">Solve</button>",
+      "description": "The Solve action. The one filled, brand-colored button on the page. Enter is its keyboard shortcut while the grid has focus.",
+      "html": "<button class=\"ds-btn-primary\" aria-keyshortcuts=\"Enter\" title=\"Solve (Enter)\">Solve</button>",
       "css": ".ds-btn-primary { background: var(--primary); color: var(--primary-fg); font-family: Inter, system-ui, sans-serif; font-size: 1rem; font-weight: 500; line-height: 1.5rem; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; transition: opacity 150ms cubic-bezier(0,0,0.2,1); } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary); }"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "The Clear action. Outlined, recedes behind the primary.",
+      "description": "The Clear action. Outlined, recedes behind the primary. A non-empty Clear is undoable via the status line.",
       "html": "<button class=\"ds-btn-secondary\">Clear</button>",
       "css": ".ds-btn-secondary { background: var(--bg); color: var(--ink); font-family: Inter, system-ui, sans-serif; font-size: 1rem; font-weight: 500; line-height: 1.5rem; padding: 8px 20px; border: 1px solid var(--grid-line); border-radius: 8px; cursor: pointer; transition: background-color 150ms cubic-bezier(0,0,0.2,1); } .ds-btn-secondary:hover { background: var(--surface); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary); }"
     },
@@ -135,28 +156,38 @@
       "name": "Sudoku Cell",
       "kind": "custom",
       "refersTo": "cell",
-      "description": "The signature element. One square cell with default, selected, related, conflict, and solved states. Authorship shows in weight as well as color.",
-      "html": "<div class=\"ds-cellrow\"><button class=\"ds-cell\">5</button><button class=\"ds-cell ds-cell--related\">3</button><button class=\"ds-cell ds-cell--solved\">4</button><button class=\"ds-cell ds-cell--conflict\">5</button><button class=\"ds-cell ds-cell--selected\">7</button></div>",
+      "description": "The signature element. One square cell with default, selected, related, conflict, and solved states. Authorship shows in weight as well as color. The grid is a roving-tabindex composite: only the selected cell is in the tab order.",
+      "html": "<div class=\"ds-cellrow\" role=\"row\"><button class=\"ds-cell\">5</button><button class=\"ds-cell ds-cell--related\">3</button><button class=\"ds-cell ds-cell--solved\">4</button><button class=\"ds-cell ds-cell--conflict\">5</button><button class=\"ds-cell ds-cell--selected\">7</button></div>",
       "css": ".ds-cellrow { display: inline-flex; border: 2px solid var(--grid-line-bold); border-radius: 12px; overflow: hidden; background: var(--bg); } .ds-cell { width: 3rem; height: 3rem; display: flex; align-items: center; justify-content: center; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, sans-serif; font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; border: none; border-right: 1px solid var(--grid-line); cursor: pointer; transition: background-color 150ms cubic-bezier(0,0,0.2,1); } .ds-cell:last-child { border-right: none; } .ds-cell--related { background: var(--cell-related); } .ds-cell--solved { color: var(--accent); font-weight: 400; } .ds-cell--conflict { background: var(--cell-conflict-bg); color: var(--danger); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; } .ds-cell--selected { background: var(--primary); color: var(--primary-fg); }"
+    },
+    {
+      "name": "Number Keypad",
+      "kind": "custom",
+      "refersTo": "keypad-key",
+      "description": "Touch-only digit entry, shown for coarse pointers so the desktop layout stays minimal. Keys 1-9 plus an erase key write to the selected cell, the same path as typing a digit.",
+      "html": "<div class=\"ds-keypad\" role=\"group\" aria-label=\"Number pad\"><button class=\"ds-key\">1</button><button class=\"ds-key\">2</button><button class=\"ds-key\">3</button><button class=\"ds-key\">4</button><button class=\"ds-key\">5</button><button class=\"ds-key\">6</button><button class=\"ds-key\">7</button><button class=\"ds-key\">8</button><button class=\"ds-key\">9</button><button class=\"ds-key\" aria-label=\"Erase cell\"><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 5H8.5a2 2 0 0 0-1.5.7L2.6 11a1.5 1.5 0 0 0 0 2l4.4 5.3a2 2 0 0 0 1.5.7H21a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z\"/><path d=\"m17 9-6 6\"/><path d=\"m11 9 6 6\"/></svg></button></div>",
+      "css": ".ds-keypad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: min(90vw, 30rem); } .ds-key { display: flex; align-items: center; justify-content: center; min-height: 3rem; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, sans-serif; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; border: 1px solid var(--grid-line); border-radius: 12px; cursor: pointer; transition: background-color 150ms cubic-bezier(0,0,0.2,1); } .ds-key:hover { background: var(--surface); } .ds-key:active { background: var(--cell-related); } .ds-key:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }"
     },
     {
       "name": "Status Line",
       "kind": "custom",
       "refersTo": null,
-      "description": "A single reserved line for the solve verdict. Holds its height when empty so the layout never jumps.",
-      "html": "<p class=\"ds-status ds-status--success\" role=\"status\" aria-live=\"polite\">Solved</p>",
-      "css": ".ds-status { height: 1.5rem; margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; } .ds-status--info { color: var(--muted); } .ds-status--error { color: var(--danger); } .ds-status--success { color: var(--accent); }"
+      "description": "A single reserved line for the solve verdict. Holds its height when empty so the layout never jumps, and wraps to host one inline text action: a Why-17 disclosure on the clue-floor warning, or Undo after a Clear or paste.",
+      "html": "<p class=\"ds-status ds-status--warning\" role=\"status\" aria-live=\"polite\">Enter at least 17 clues to solve (you have 9) <button class=\"ds-status-action\">Why 17?</button></p>",
+      "css": ".ds-status { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 8px; min-height: 1.5rem; margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; } .ds-status--info { color: var(--muted); } .ds-status--warning { color: var(--warning); } .ds-status--error { color: var(--danger); } .ds-status--success { color: var(--accent); } .ds-status-action { background: none; border: none; padding: 0; color: var(--primary); font: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; } .ds-status-action:hover { opacity: 0.8; }"
     }
   ],
   "narrative": {
     "northStar": "The Instrument",
-    "overview": "A well-made instrument, not an app with personality to spend. A person arrives with a puzzle, types it in, and gets a correct verdict in seconds. The interface earns trust the way a good ruler or calculator does: exact, quiet, and disappearing into the task. One committed brand color (Layout Blue) carries selection, the primary action, and focus against deliberately neutral surfaces; warmth comes from the color and the type, never from a tinted background. Color never carries meaning alone: user and solver digits differ in weight as well as hue, and conflicts carry an underline as well as red.",
+    "overview": "A well-made instrument, not an app with personality to spend. A person arrives with a puzzle, types it in, and gets a correct verdict in seconds. The interface earns trust the way a good ruler or calculator does: exact, quiet, and disappearing into the task. One committed brand color (Layout Blue) carries selection, the primary action, and focus against deliberately neutral surfaces; warmth comes from the color and the type, never from a tinted background. Color never carries meaning alone: user and solver digits differ in weight as well as hue, and conflicts carry an underline as well as red. Input is device-aware (hardware keyboard on desktop, an on-screen keypad on touch), and every board-replacing action is recoverable with a single inline Undo.",
     "keyCharacteristics": [
       "One committed brand color; neutral surfaces.",
       "Authorship is unmistakable: user digits are bold ink, solver digits are normal-weight teal.",
       "Redundant encoding: every color meaning has a second, non-chromatic cue.",
       "Dense tabular grid; minimal chrome.",
-      "Auto light/dark, WCAG AA, full keyboard operation."
+      "Auto light/dark, WCAG AA, full keyboard operation.",
+      "Input is device-aware: hardware keyboard on desktop, an on-screen keypad on touch.",
+      "Every board-replacing action (Clear, paste) is recoverable with a single Undo."
     ],
     "rules": [
       {
@@ -183,21 +214,40 @@
         "name": "The Flat Frame Rule",
         "body": "Surfaces are flat. The board carries one whisper-light ambient shadow; everything else is flat and reads through color, border, and weight. No element pairs a 1px border with a wide soft shadow.",
         "section": "elevation"
+      },
+      {
+        "name": "The Single-Selection Rule",
+        "body": "Exactly one cell is selected and DOM focus is always on it. Navigation moves both together; they never diverge.",
+        "section": "components"
+      },
+      {
+        "name": "The Recoverable-Replace Rule",
+        "body": "Any action that replaces the whole board (Clear, paste) is undoable inline. Destructive board changes never use a confirmation dialog.",
+        "section": "components"
+      },
+      {
+        "name": "The Scoped-Keys Rule",
+        "body": "Grid keystrokes (digits, arrows, Enter) are handled on the grid, not the window, so focus determines a key's meaning. Paste is the one global listener, because it has no single focus target.",
+        "section": "components"
       }
     ],
     "dos": [
       "Do carry every color meaning with a second cue: weight for authorship, underline for conflict. Color alone is never the signal.",
       "Do keep the body and cell background pure white in light mode and near-black in dark mode; let Layout Blue and the type carry the character.",
       "Do keep grid digits on tabular-nums so columns stay aligned.",
-      "Do state verdicts plainly: \"No solution exists\", \"Puzzle has multiple solutions\", \"Solved\". No exclamation, no celebration.",
-      "Do keep Solver Teal at hue ~200 so it stays separable from Conflict Red for red-green color-blind users."
+      "Do state verdicts plainly: \"No solution exists\", \"Multiple solutions exist; showing one\", \"Solved\". No exclamation, no celebration.",
+      "Do keep Solver Teal at hue ~200 so it stays separable from Conflict Red for red-green color-blind users.",
+      "Do make every board-replacing action (Clear, paste) undoable inline, and keep DOM focus on the selected cell so it never drifts from the selection.",
+      "Do gate the keypad to touch (pointer: coarse); desktop relies on the hardware keyboard so the layout stays minimal."
     ],
     "donts": [
       "Don't ship the toy/gamey register: no confetti, stars, streaks, or cartoon styling on a solve.",
       "Don't drift toward the ad-heavy \"free sudoku solver\" look: cluttered, slow, untrustworthy chrome around the grid.",
       "Don't use the generic AI-default surface: warm cream/beige backgrounds, a dusty accent, soft drop-shadowed cards, or an uppercase tracked eyebrow over a section.",
       "Don't pair a 1px border with a wide soft shadow (the ghost-card tell), or round cards past 16px.",
-      "Don't distinguish solver digits from user digits by color only, and never signal a conflict with red text alone."
+      "Don't distinguish solver digits from user digits by color only, and never signal a conflict with red text alone.",
+      "Don't add a confirmation modal for Clear or paste; use the inline Undo. Modals are not part of this system.",
+      "Don't make the grid 81 tab stops or let DOM focus and selection diverge; the grid is one roving-tabindex stop."
     ]
   }
 }
