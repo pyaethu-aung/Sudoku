@@ -11,8 +11,8 @@ const BASE =
   'rounded-lg px-5 py-2 font-medium transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-page';
 
 const VARIANT: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-primary-fg hover:opacity-90',
-  secondary: 'border border-line text-ink hover:bg-surface',
+  primary: 'bg-primary text-primary-fg hover:opacity-90 active:opacity-75',
+  secondary: 'border border-line text-ink hover:bg-surface active:bg-related',
 };
 
 /**
