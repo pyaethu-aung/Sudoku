@@ -153,7 +153,7 @@ export default function App() {
       <Keypad onInput={setCell} onErase={() => setCell(0)} disabled={!selected} />
 
       <div className="flex gap-3">
-        <Button variant="primary" onClick={handleSolve}>
+        <Button variant="primary" onClick={handleSolve} aria-keyshortcuts="Enter" title="Solve (Enter)">
           Solve
         </Button>
         <Button variant="secondary" onClick={handleClear}>
