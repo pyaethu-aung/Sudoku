@@ -6,6 +6,7 @@
   :root {
     --bg: oklch(1 0 0);
     --grid-width: min(90vw, 30rem);
+    --shadow-frame: 0 1px 2px 0 rgb(0 0 0 / 0.08);
     --surface: oklch(0.968 0.004 255);
     --ink: oklch(0.22 0.02 260);
     --muted: oklch(0.55 0.015 260);
@@ -23,6 +24,7 @@
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: oklch(0.17 0.012 260);
+      --shadow-frame: 0 1px 3px 0 rgb(255 255 255 / 0.07);
       --surface: oklch(0.225 0.014 260);
       --ink: oklch(0.95 0.008 260);
       --muted: oklch(0.68 0.012 260);

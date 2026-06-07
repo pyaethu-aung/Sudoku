@@ -40,6 +40,7 @@ export default function Cell({ row, col, value, selected, related, conflict, sol
       tabIndex={selected ? 0 : -1}
       aria-label={`Row ${row + 1}, column ${col + 1}${value ? `, ${value}` : ', empty'}`}
       aria-selected={selected}
+      aria-colindex={col + 1}
       onClick={() => onSelect(row, col)}
       className={[
         'flex aspect-square items-center justify-center text-[clamp(1rem,5vw,1.6rem)] tabular-nums',

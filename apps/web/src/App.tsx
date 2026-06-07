@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { countSolutions, solve, type Grid } from '@sudoku/core';
 import { Button } from '@sudoku/ui';
 import { countClues, emptyBoard, getConflicts, MIN_CLUES, parsePuzzle } from './sudoku';
@@ -31,6 +31,15 @@ export default function App() {
   // visual status line). Updated on every cell change, paste, and undo.
   const [announce, setAnnounce] = useState('');
 
+  // Stable ref to the latest board so the paste handler can read it without
+  // being re-registered on every cell edit.
+  const boardRef = useRef(board);
+  useEffect(() => { boardRef.current = board; }, [board]);
+
+  // Ref to the "Why 17?" button so focus can be returned to it if the
+  // disclosure closes while one of its links has focus.
+  const whyButtonRef = useRef<HTMLButtonElement>(null);
+
   const conflicts = useMemo(() => getConflicts(board), [board]);
   const display = solution ?? board;
   const solved = solution !== null;
@@ -40,6 +49,14 @@ export default function App() {
     (value: number) => {
       if (!selected) return;
       const [row, col] = selected;
+      // Return focus to the Why 17 button before the disclosure unmounts so
+      // focus doesn't jump to <body> if a link inside the panel had focus.
+      if (whyOpen) {
+        const panel = document.getElementById('why-minimum');
+        if (panel?.contains(document.activeElement)) {
+          whyButtonRef.current?.focus();
+        }
+      }
       setBoard((prev) => {
         if (prev[row][col] === value) return prev;
         const next = prev.map((r) => [...r]);
@@ -54,7 +71,7 @@ export default function App() {
         `Row ${row + 1}, column ${col + 1} ${value === 0 ? 'cleared' : `set to ${value}`}`,
       );
     },
-    [selected],
+    [selected, whyOpen],
   );
 
   const handleSolve = useCallback(() => {
@@ -118,8 +135,9 @@ export default function App() {
       const parsed = parsePuzzle(event.clipboardData?.getData('text') ?? '');
       if (!parsed) return;
       event.preventDefault();
-      const hadClues = countClues(board) > 0;
-      setCleared(hadClues ? board : null);
+      const current = boardRef.current;
+      const hadClues = countClues(current) > 0;
+      setCleared(hadClues ? current : null);
       setBoard(parsed);
       setSolution(null);
       setStatus(hadClues ? { kind: 'info', text: 'Puzzle loaded' } : null);
@@ -128,7 +146,7 @@ export default function App() {
     }
     window.addEventListener('paste', onPaste);
     return () => window.removeEventListener('paste', onPaste);
-  }, [board]);
+  }, []);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-page px-4 py-10 text-ink">
@@ -172,6 +190,7 @@ export default function App() {
           <span>{status?.text}</span>
           {status?.kind === 'warning' && (
             <button
+              ref={whyButtonRef}
               type="button"
               aria-expanded={whyOpen}
               aria-controls="why-minimum"

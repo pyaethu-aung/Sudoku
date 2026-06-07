@@ -81,12 +81,14 @@ export default function Board({
       ref={gridRef}
       role="grid"
       aria-label="Sudoku board"
+      aria-rowcount={9}
+      aria-colcount={9}
       onKeyDown={handleKeyDown}
-      className="grid w-[var(--grid-width)] grid-cols-9 overflow-hidden rounded-xl border-2 border-line-bold bg-page shadow-sm"
+      className="grid w-[var(--grid-width)] grid-cols-9 overflow-hidden rounded-xl border-2 border-line-bold bg-page shadow-[var(--shadow-frame)]"
     >
       {display.map((rowValues, row) => (
         // `contents` keeps cells as direct grid items while exposing row semantics.
-        <div role="row" className="contents" key={row}>
+        <div role="row" aria-rowindex={row + 1} className="contents" key={row}>
           {rowValues.map((value, col) => {
             const key = cellKey(row, col);
             return (
