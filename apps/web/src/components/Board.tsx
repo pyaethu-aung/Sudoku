@@ -88,7 +88,7 @@ export default function Board({
     >
       {display.map((rowValues, row) => (
         // `contents` keeps cells as direct grid items while exposing row semantics.
-        <div role="row" aria-rowindex={row + 1} className="contents" key={row}>
+        <div role="row" aria-rowindex={row + 1} className="col-span-9 grid grid-cols-subgrid" key={row}>
           {rowValues.map((value, col) => {
             const key = cellKey(row, col);
             return (
