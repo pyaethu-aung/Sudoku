@@ -1,4 +1,4 @@
-import { Pressable, Text } from 'react-native';
+import { TextInput } from 'react-native';
 import type { Theme } from './theme';
 
 interface CellProps {
@@ -12,7 +12,10 @@ interface CellProps {
   /** Filled by the solver (was empty in the user's board) — styled as a hint. */
   solved: boolean;
   theme: Theme;
+  /** Focus moved here — drives the selection highlight. */
   onSelect: (row: number, col: number) => void;
+  /** Digit typed (1-9), or 0 to clear. */
+  onChangeDigit: (row: number, col: number, value: number) => void;
 }
 
 function background(t: Theme, selected: boolean, conflict: boolean, related: boolean): string {
@@ -40,6 +43,7 @@ export default function Cell({
   solved,
   theme,
   onSelect,
+  onChangeDigit,
 }: CellProps) {
   // Heavy 2px rules on box boundaries, hairlines elsewhere; the outer frame
   // draws the board edge, so the last row/column add none. Mirrors web Cell.
@@ -50,35 +54,42 @@ export default function Cell({
   // are normal.
   const fontWeight = selected || (!solved && value !== 0) || conflict ? '700' : '400';
 
+  // The number pad emits a digit, a 0, or an empty string (its ⌫ key, which
+  // replaces the old erase button). Both 0 and empty clear the cell.
+  function handleChangeText(text: string) {
+    const ch = text.replace(/[^0-9]/g, '').slice(-1);
+    onChangeDigit(row, col, ch === '' || ch === '0' ? 0 : Number(ch));
+  }
+
   return (
-    <Pressable
-      onPress={() => onSelect(row, col)}
-      accessibilityRole="button"
+    <TextInput
+      value={value === 0 ? '' : String(value)}
+      onChangeText={handleChangeText}
+      onFocus={() => onSelect(row, col)}
+      keyboardType="number-pad"
+      maxLength={1}
+      caretHidden
+      selectTextOnFocus
+      selectionColor="transparent"
+      contextMenuHidden
       accessibilityLabel={`Row ${row + 1}, column ${col + 1}${value ? `, ${value}` : ', empty'}`}
-      accessibilityState={{ selected }}
       style={{
         width: size,
         height: size,
-        alignItems: 'center',
-        justifyContent: 'center',
+        padding: 0,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontSize: Math.round(size * 0.5),
+        fontWeight,
+        fontVariant: ['tabular-nums'],
+        color: digitColor(theme, selected, conflict, solved),
+        textDecorationLine: conflict ? 'underline' : 'none',
         backgroundColor: background(theme, selected, conflict, related),
         borderRightWidth,
         borderBottomWidth,
         borderRightColor: col % 3 === 2 ? theme.lineBold : theme.line,
         borderBottomColor: row % 3 === 2 ? theme.lineBold : theme.line,
       }}
-    >
-      <Text
-        style={{
-          fontSize: Math.round(size * 0.5),
-          fontWeight,
-          fontVariant: ['tabular-nums'],
-          color: digitColor(theme, selected, conflict, solved),
-          textDecorationLine: conflict ? 'underline' : 'none',
-        }}
-      >
-        {value === 0 ? '' : value}
-      </Text>
-    </Pressable>
+    />
   );
 }
