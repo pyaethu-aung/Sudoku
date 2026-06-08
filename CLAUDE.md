@@ -13,7 +13,7 @@ Turborepo + pnpm workspaces. Two apps consume two shared packages:
 ```
 apps/
   web/      React 19 + Vite 6 + Tailwind CSS
-  mobile/   Expo SDK 56 (React Native 0.85) — scaffold only, no features yet
+  mobile/   Expo SDK 56 (React Native 0.85) + Expo Router — native solver UI
 packages/
   core/     @sudoku/core — pure TS business logic (solve, validate, generate)
   ui/       @sudoku/ui   — shared React component library (peer dep on React)
@@ -34,7 +34,13 @@ Both apps declare `@sudoku/core` as a workspace dependency. `@sudoku/ui` is avai
 - `isValid(board, row, col, num)` → boolean
 - `findEmpty(board)` → `[row, col]` or `null`
 - `countSolutions(board)` → 0, 1, or 2 (stops at 2)
-- Board type: `number[][]`, where `0` = empty cell
+- `emptyBoard()` → a fresh 9×9 `Grid` of zeros
+- `countClues(board)` → count of filled cells
+- `cellKey(row, col)` → stable `"row,col"` string
+- `parsePuzzle(text)` → `Grid` from an 81-char string, or `null`
+- `getConflicts(board)` → set of `"row,col"` keys that break a rule
+- `MIN_CLUES` → `17`, the proven minimum for a unique solution
+- Board type: `Grid` = `number[][]`, where `0` = empty cell
 
 ## Algorithm
 
@@ -102,4 +108,9 @@ Two `PreToolUse` hooks in `.claude/settings.json` enforce that `git commit` and 
 
 ## Current state
 
-Core logic (`solve`, `validate`, `generate` in `packages/core/src/index.ts`) is stubbed — they throw `Error('Not implemented')`. Both apps render a placeholder heading. The mobile build step is a no-op (`echo` command); actual mobile builds go through EAS.
+Core logic in `packages/core` is implemented and covered by Vitest:
+`solve`, `isValid`, `findEmpty`, `countSolutions`, plus the shared board
+helpers (`emptyBoard`, `countClues`, `cellKey`, `parsePuzzle`, `getConflicts`,
+`MIN_CLUES`). Both apps ship a full solver: `apps/web` (Vite) and `apps/mobile`
+(Expo Router), each importing all domain logic from `@sudoku/core`. The mobile
+`build` step is a no-op (`echo` command); actual mobile builds go through EAS.
