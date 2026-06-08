@@ -15,6 +15,7 @@ interface BoardProps {
   size: number;
   theme: Theme;
   onSelect: (row: number, col: number) => void;
+  onChangeDigit: (row: number, col: number, value: number) => void;
 }
 
 function isRelated(selected: [number, number] | null, row: number, col: number): boolean {
@@ -35,6 +36,7 @@ export default function Board({
   size,
   theme,
   onSelect,
+  onChangeDigit,
 }: BoardProps) {
   const cellSize = Math.floor(size / 9);
 
@@ -67,6 +69,7 @@ export default function Board({
                 solved={solved && board[row][col] === 0}
                 theme={theme}
                 onSelect={onSelect}
+                onChangeDigit={onChangeDigit}
               />
             );
           })}

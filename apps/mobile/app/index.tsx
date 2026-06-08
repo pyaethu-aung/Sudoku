@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { Stack } from 'expo-router/stack';
 import {
   countClues,
@@ -11,8 +11,6 @@ import {
   type Grid,
 } from '@sudoku/core';
 import Board from '../components/board';
-import Button from '../components/button';
-import Keypad from '../components/keypad';
 import { useTheme } from '../components/theme';
 
 type StatusKind = 'info' | 'warning' | 'error' | 'success';
@@ -29,8 +27,8 @@ export default function Index() {
   const boardSize = Math.floor(Math.min(width - 24, 460) / 9) * 9;
 
   const [board, setBoard] = useState<Grid>(emptyBoard);
-  // Start with the top-left cell selected so the keypad has a target on load.
-  const [selected, setSelected] = useState<[number, number] | null>([0, 0]);
+  // No cell is highlighted until the user taps one (which also opens the pad).
+  const [selected, setSelected] = useState<[number, number] | null>(null);
   const [solution, setSolution] = useState<Grid | null>(null);
   const [status, setStatus] = useState<Status | null>(null);
   const [whyOpen, setWhyOpen] = useState(false);
@@ -41,26 +39,22 @@ export default function Index() {
   const display = solution ?? board;
   const solved = solution !== null;
 
-  // Editing the board always returns to edit mode and clears any prior verdict.
-  const setCell = useCallback(
-    (value: number) => {
-      if (!selected) return;
-      const [row, col] = selected;
-      setBoard((prev) => {
-        if (prev[row][col] === value) return prev;
-        const next = prev.map((r) => [...r]);
-        next[row][col] = value;
-        return next;
-      });
-      setSolution(null);
-      setStatus(null);
-      setWhyOpen(false);
-      setCleared(null);
-    },
-    [selected],
-  );
+  // Writing a cell always returns to edit mode and clears any prior verdict.
+  const writeCell = useCallback((row: number, col: number, value: number) => {
+    setBoard((prev) => {
+      if (prev[row][col] === value) return prev;
+      const next = prev.map((r) => [...r]);
+      next[row][col] = value;
+      return next;
+    });
+    setSolution(null);
+    setStatus(null);
+    setWhyOpen(false);
+    setCleared(null);
+  }, []);
 
   const handleSolve = useCallback(() => {
+    Keyboard.dismiss();
     setWhyOpen(false);
 
     if (conflicts.size > 0) {
@@ -93,13 +87,13 @@ export default function Index() {
   }, [board, conflicts]);
 
   const handleClear = useCallback(() => {
+    Keyboard.dismiss();
     const hadClues = countClues(board) > 0;
     setCleared(hadClues ? board : null);
     setBoard(emptyBoard());
     setSolution(null);
     setStatus(hadClues ? { kind: 'info', text: 'Board cleared' } : null);
-    // Keep a cell selected so the keypad stays usable after clearing.
-    setSelected([0, 0]);
+    setSelected(null);
     setWhyOpen(false);
   }, [board]);
 
@@ -120,7 +114,21 @@ export default function Index() {
 
   return (
     <>
-      <Stack.Screen options={{ contentStyle: { backgroundColor: theme.bg } }} />
+      <Stack.Screen
+        options={{
+          contentStyle: { backgroundColor: theme.bg },
+          headerLeft: () => (
+            <Pressable onPress={handleClear} accessibilityRole="button" hitSlop={8}>
+              <Text style={{ fontSize: 17, color: theme.muted }}>Clear</Text>
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable onPress={handleSolve} accessibilityRole="button" hitSlop={8}>
+              <Text style={{ fontSize: 17, fontWeight: '600', color: theme.primary }}>Solve</Text>
+            </Pressable>
+          ),
+        }}
+      />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
@@ -134,7 +142,7 @@ export default function Index() {
         }}
       >
         <Text style={{ fontSize: 14, color: theme.muted, textAlign: 'center' }}>
-          Tap a cell, enter a puzzle, then solve. Conflicts highlight as you go.
+          Tap a cell and type a digit. Conflicts highlight as you go.
         </Text>
 
         <Board
@@ -146,20 +154,8 @@ export default function Index() {
           size={boardSize}
           theme={theme}
           onSelect={(row, col) => setSelected([row, col])}
+          onChangeDigit={writeCell}
         />
-
-        <Keypad
-          onInput={setCell}
-          onErase={() => setCell(0)}
-          disabled={!selected}
-          width={boardSize}
-          theme={theme}
-        />
-
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <Button variant="primary" label="Solve" theme={theme} onPress={handleSolve} />
-          <Button variant="secondary" label="Clear" theme={theme} onPress={handleClear} />
-        </View>
 
         <View style={{ width: boardSize, alignItems: 'center', gap: 8, minHeight: 24 }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
