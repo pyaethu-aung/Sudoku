@@ -32,7 +32,10 @@ COPY apps/web/package.json apps/web/
 COPY apps/mobile/package.json apps/mobile/
 
 # Install all workspace dependencies
-RUN pnpm install --frozen-lockfile
+# --ignore-scripts skips native postinstall scripts (e.g. node-gyp from
+# Expo/React Native packages) that need Python/make — not required for the
+# web build and unavailable in node:20-alpine
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy base TypeScript config
 COPY tsconfig.base.json ./
