@@ -151,6 +151,10 @@ export default function App() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-page px-4 py-10 text-ink">
       <header className="text-center">
+        <picture className="mb-3 block">
+          <source srcSet="/logo-dark.svg" media="(prefers-color-scheme: dark)" />
+          <img src="/logo.svg" alt="" width="48" height="48" className="mx-auto" aria-hidden="true" />
+        </picture>
         <h1 className="text-2xl font-semibold tracking-tight">Sudoku Solver</h1>
         <p className="mt-1 text-sm text-muted">
           Type a puzzle, then solve it. Conflicts highlight as you go.

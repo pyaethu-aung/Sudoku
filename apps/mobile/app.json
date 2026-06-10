@@ -6,8 +6,20 @@
     "orientation": "portrait",
     "scheme": "sudoku",
     "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
     "platforms": ["ios", "android"],
     "sdkVersion": "56.0.0",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0961BB"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#0961BB"
+      }
+    },
     "plugins": ["expo-router"]
   }
 }
