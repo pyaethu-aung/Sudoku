@@ -1,0 +1,19 @@
+<svg viewBox="0 0 96 96" width="96" height="96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sudoku logo">
+  <!-- Dark backgrounds: ink-dark lines (#EBEFF4), dark-mode Layout Blue (oklch(0.62 0.15 255) = #4087DE). -->
+  <defs>
+    <clipPath id="frame"><rect x="5" y="5" width="86" height="86" rx="13"/></clipPath>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect x="5" y="5" width="28.67" height="28.67" fill="#4087DE"/>
+  </g>
+  <g stroke="#EBEFF4" stroke-width="3">
+    <line x1="33.67" y1="5" x2="33.67" y2="91"/>
+    <line x1="62.33" y1="5" x2="62.33" y2="91"/>
+    <line x1="5" y1="33.67" x2="91" y2="33.67"/>
+    <line x1="5" y1="62.33" x2="91" y2="62.33"/>
+  </g>
+  <rect x="5" y="5" width="86" height="86" rx="13" fill="none" stroke="#EBEFF4" stroke-width="5"/>
+  <text x="19.3" y="20" text-anchor="middle" dominant-baseline="central"
+        font-family="Inter, system-ui, -apple-system, sans-serif"
+        font-size="19" font-weight="700" fill="#FFFFFF">9</text>
+</svg>
