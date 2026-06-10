@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-An MVP Sudoku solver. Web first (React + TypeScript), React Native mobile planned soon. No backend.
+An MVP Sudoku solver. React web app and Expo mobile app, sharing TypeScript solver logic. No backend.
 
 ## Monorepo layout
 
@@ -82,7 +82,7 @@ Tests live only in `packages/core` (Vitest). The `packages/ui` package has no te
 
 Before opening any PR, all three must pass locally: `pnpm test && pnpm lint && pnpm build`
 
-CI runs on every PR via GitHub Actions (`lint.yml` and `security.yml`). The lint workflow mirrors the local check above. The security workflow runs `pnpm audit --audit-level=high`, Snyk, and CodeQL. Both must pass before merging.
+CI runs via four GitHub Actions workflows: `lint.yml` (lint + test + build, PRs only), `security.yml` (audit + Snyk + CodeQL, PRs + pushes + weekly), `deploy.yml` (GitHub Pages deploy on release), `docker-publish.yml` (Hadolint + Trivy scan + GHCR push + Cosign sign on release; scan-only on PRs and weekly). `lint.yml` and `security.yml` must pass before merging.
 
 Never push directly to `main`. All changes must go through a pull request. A `pre-push` git hook in `.githooks/` enforces this — activated automatically via the `prepare` pnpm script on `pnpm install`.
 
@@ -114,3 +114,14 @@ helpers (`emptyBoard`, `countClues`, `cellKey`, `parsePuzzle`, `getConflicts`,
 `MIN_CLUES`). Both apps ship a full solver: `apps/web` (Vite) and `apps/mobile`
 (Expo Router), each importing all domain logic from `@sudoku/core`. The mobile
 `build` step is a no-op (`echo` command); actual mobile builds go through EAS.
+
+Brand assets are in place. `apps/web/public/` holds `logo.svg` (light),
+`logo-dark.svg` (dark), and `favicon.svg` (single adaptive SVG with an
+embedded `prefers-color-scheme` media query used as the browser tab icon).
+`apps/web/vite.config.ts` sets `base: './'` for GitHub Pages compatibility —
+use relative paths when referencing public assets from source. The mobile app
+has a 1024×1024 `assets/icon.png` wired up as icon, splash, and Android
+adaptive icon in `app.json`.
+
+All four CI workflows (`lint.yml`, `security.yml`, `deploy.yml`,
+`docker-publish.yml`) are configured in `.github/workflows/`.
