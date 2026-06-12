@@ -1,13 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import {
-  Platform,
-  PlatformColor,
-  Pressable,
-  ScrollView,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router/stack';
 import {
   countClues,
@@ -19,6 +12,7 @@ import {
   type Grid,
 } from '@sudoku/core';
 import Board from '../components/board';
+import BottomBar, { BOTTOM_BAR_HEIGHT } from '../components/bottombar';
 import NumberPad from '../components/numberpad';
 import { useTheme } from '../components/theme';
 
@@ -31,6 +25,7 @@ interface Status {
 export default function Index() {
   const theme = useTheme();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   // Snap the board edge to a multiple of 9 so every cell is a whole pixel.
   const boardSize = Math.floor(Math.min(width - 24, 460) / 9) * 9;
@@ -131,44 +126,16 @@ export default function Index() {
     success: theme.accent,
   };
 
-  // Use the OS tint so the bar buttons match system controls (and adapt to the
-  // user's accent and light/dark) rather than our own brand blue. iOS exposes a
-  // dedicated link/tint color; on Android we fall back to the themed primary.
-  const headerTint = Platform.OS === 'ios' ? PlatformColor('link') : theme.primary;
-
   return (
-    <>
-      <Stack.Screen
-        options={{
-          contentStyle: { backgroundColor: theme.bg },
-          headerLeft: () => (
-            <Pressable
-              onPress={handleClear}
-              accessibilityRole="button"
-              hitSlop={8}
-              style={({ pressed }) => ({ opacity: pressed ? 0.3 : 1 })}
-            >
-              <Text style={{ fontSize: 17, color: theme.muted }}>Clear</Text>
-            </Pressable>
-          ),
-          headerRight: () => (
-            <Pressable
-              onPress={handleSolve}
-              accessibilityRole="button"
-              hitSlop={8}
-              style={({ pressed }) => ({ opacity: pressed ? 0.3 : 1 })}
-            >
-              <Text style={{ fontSize: 17, fontWeight: '600', color: headerTint }}>Solve</Text>
-            </Pressable>
-          ),
-        }}
-      />
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <Stack.Screen options={{ contentStyle: { backgroundColor: theme.bg } }} />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={{ backgroundColor: theme.bg }}
         contentContainerStyle={{
           paddingTop: 8,
-          paddingBottom: 48,
+          // Clear the floating bottom bar (height + its safe-area padding).
+          paddingBottom: BOTTOM_BAR_HEIGHT + insets.bottom + 24,
           paddingHorizontal: 12,
           gap: 24,
           alignItems: 'center',
@@ -248,6 +215,8 @@ export default function Index() {
           )}
         </View>
       </ScrollView>
-    </>
+
+      <BottomBar theme={theme} onClear={handleClear} onSolve={handleSolve} />
+    </View>
   );
 }
