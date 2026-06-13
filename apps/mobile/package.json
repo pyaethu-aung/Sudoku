@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@sudoku/core": "workspace:*",
-    "expo": "~56.0.0",
+    "expo": "~56.0.11",
     "expo-constants": "~56.0.17",
     "expo-glass-effect": "~56.0.4",
     "expo-linking": "~56.0.13",
