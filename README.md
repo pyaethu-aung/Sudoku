@@ -36,8 +36,30 @@ and conflict-detection logic runs on-device via `@sudoku/core`.
 - **Solve** fills a uniquely-solvable puzzle; **Clear** empties the board.
 - Adapts to light and dark system themes via `userInterfaceStyle: automatic`.
 
-Mobile builds are handled by EAS — `pnpm --filter @sudoku/mobile dev` starts
-the Expo dev server for local development.
+### Running on iOS
+
+**Expo Go** (no native build required):
+
+```bash
+pnpm --filter @sudoku/mobile dev   # start Metro, then scan the QR code in Expo Go
+```
+
+**Development build** (native app, simulator or device):
+
+```bash
+# List available simulators
+xcrun simctl list devices available
+
+# Build and install on a simulator (first run takes a few minutes)
+pnpm --filter @sudoku/mobile exec expo run:ios --device "iPhone 17 Pro"
+```
+
+> **Note (Node.js 24):** `expo run:ios` crashes with a `DOMParser.parseFromString` error due to
+> a `@xmldom/xmldom@0.9.10` incompatibility. Fix it by patching line 69 of
+> `node_modules/.pnpm/@expo+plist@0.7.0/node_modules/@expo/plist/build/parse.js` — change
+> `.parseFromString(xml)` to `.parseFromString(xml, 'text/xml')`.
+>
+> Mobile distribution builds are handled by EAS.
 
 ## Getting started
 
@@ -53,7 +75,8 @@ pnpm dev       # start all apps in dev mode
 | Task | Command |
 |------|---------|
 | Dev (web only) | `pnpm --filter @sudoku/web dev` |
-| Dev (mobile) | `pnpm --filter @sudoku/mobile dev` |
+| Dev (mobile, Expo Go) | `pnpm --filter @sudoku/mobile dev` |
+| Dev (mobile, iOS simulator) | `pnpm --filter @sudoku/mobile exec expo run:ios --device "<name>"` |
 | Test | `pnpm test` |
 | Lint | `pnpm lint` |
 | Build | `pnpm build` |
